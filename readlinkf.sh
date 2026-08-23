@@ -67,8 +67,18 @@ readlinkf_readlink() {
   return 1
 }
 
+# Drop in for readlink in filesystem so existing scripts calling
+# readlink -f can work unchanged.
+readlink() {
+  [ "${1:-}" ] || return 1
+
+  [ "$1" = "-f" ] && return 0
+  readlinkf_posix $1
+  return $?
+}
+
 # Run as a command is an example.
-case ${0##*/} in (readlinkf_posix | readlinkf_readlink)
+case ${0##*/} in (readlink | readlinkf_posix | readlinkf_readlink)
   set -eu
 
   if [ $# -eq 0 ]; then
